@@ -67,111 +67,117 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 15),
-                  height: 50,
-                  child: TextField(
-                    controller: _searchController,
-                    onChanged: (value) {
-                      setState(() {
-                        isSearching = value.isNotEmpty;
-                      });
-                    },
-                    decoration: InputDecoration(
-                        hintText: 'Search Employee Name',
-                        hintStyle: const TextStyle(color: Colors.grey),
-                        enabled: true,
-                        suffixIcon: const Icon(
-                          Feather.search,
-                          color: Colors.black,
-                          size: 30,
-                        ),
-                        fillColor: Colors.grey[200],
-                        filled: true,
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(25))),
-                  )),
-            ),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text("Employee Details",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-            const SizedBox(
-              height: 15,
-            ),
-            StreamBuilder(
-                stream: FirebaseFirestore.instance
-                    .collection('Employee')
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else {
-                    List<DocumentSnapshot> employees =
-                        snapshot.data?.docs ?? [];
-
-                    // Filtered list based on search
-                    List<DocumentSnapshot> filteredEmployees =
-                        employees.where((employee) {
-                      if (!isSearching) {
-                        return true; // Show all employees if not searching
-                      }
-                      String name =
-                          employee['empName'].toString().toLowerCase();
-                      String searchTerm = _searchController.text.toLowerCase();
-                      return name.contains(searchTerm);
-                    }).toList();
-
-                    // when user search for Empoyee but not found
-                    if (filteredEmployees.isEmpty && isSearching) {
-                      return const Center(
-                        child: Text(
-                          'No Employee Found',
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: Colors.redAccent,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      );
-                    }
-
-                    return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: filteredEmployees.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        itemBuilder: (context, index) {
-                          DocumentSnapshot employeeDoc =
-                              filteredEmployees[index];
-                          Timestamp timestamp =
-                              Timestamp.fromMillisecondsSinceEpoch(
-                                  employeeDoc['joiningDate']
-                                      .millisecondsSinceEpoch);
-
-                          DateTime dateTime = timestamp.toDate();
-
-                          DateFormat newDateFormat =
-                              DateFormat("MMMM dd, yyyy");
-                          String formattedDate = newDateFormat.format(dateTime);
-
-                          return EmployeeCard(
-                            emplyeeDoc: employeeDoc,
-                            joinFromatedDate: formattedDate,
-                            datetime: dateTime,
-                          );
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 15),
+                    height: 50,
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) {
+                        setState(() {
+                          isSearching = value.isNotEmpty;
                         });
-                  }
-                })
-          ],
+                      },
+                      decoration: InputDecoration(
+                          hintText: 'Search Employee Name',
+                          hintStyle: const TextStyle(color: Colors.grey),
+                          enabled: true,
+                          suffixIcon: const Icon(
+                            Feather.search,
+                            color: Colors.black,
+                            size: 30,
+                          ),
+                          fillColor: Colors.grey[200],
+                          filled: true,
+                          border: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(25))),
+                    )),
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Text("Employee Details",
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+              StreamBuilder(
+                  stream: FirebaseFirestore.instance
+                      .collection('Employee')
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else {
+                      List<DocumentSnapshot> employees =
+                          snapshot.data?.docs ?? [];
+
+                      // Filtered list based on search
+                      List<DocumentSnapshot> filteredEmployees =
+                          employees.where((employee) {
+                        if (!isSearching) {
+                          return true; // Show all employees if not searching
+                        }
+                        String name =
+                            employee['empName'].toString().toLowerCase();
+                        String searchTerm =
+                            _searchController.text.toLowerCase();
+                        return name.contains(searchTerm);
+                      }).toList();
+
+                      // when user search for Empoyee but not found
+                      if (filteredEmployees.isEmpty && isSearching) {
+                        return const Center(
+                          child: Text(
+                            'No Employee Found',
+                            style: TextStyle(
+                                fontSize: 15,
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        );
+                      }
+
+                      return ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: filteredEmployees.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemBuilder: (context, index) {
+                            DocumentSnapshot employeeDoc =
+                                filteredEmployees[index];
+                            Timestamp timestamp =
+                                Timestamp.fromMillisecondsSinceEpoch(
+                                    employeeDoc['joiningDate']
+                                        .millisecondsSinceEpoch);
+
+                            DateTime dateTime = timestamp.toDate();
+
+                            DateFormat newDateFormat =
+                                DateFormat("MMMM dd, yyyy");
+                            String formattedDate =
+                                newDateFormat.format(dateTime);
+
+                            return EmployeeCard(
+                              emplyeeDoc: employeeDoc,
+                              joinFromatedDate: formattedDate,
+                              datetime: dateTime,
+                            );
+                          });
+                    }
+                  })
+            ],
+          ),
         ),
       ),
     );
